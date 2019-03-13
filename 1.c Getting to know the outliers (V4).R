@@ -7,7 +7,7 @@
 ###############################################################################
 
 # Load the data
-Outliers30 <- readRDS(file = "Outliers.rds")
+Outliers30 <- readRDS(file = "data/Outliers.rds")
 
 # understand the characteristics of the zero variance rows
 summary(Outliers30[,521:529])

@@ -110,7 +110,7 @@ trainingData %>%
   filter(problems == 1) -> Outliers
 
 # store the outliers for further investifation (see script 1.c)
-saveRDS(Outliers, file = "Outliers.rds")
+saveRDS(Outliers, file = "data/Outliers.rds")
 
 # Transform the rows that have measurements between -29 and 99 to -106
 # the validationData does not have measurements between -30 and 0
@@ -121,7 +121,7 @@ ZeroVarRows <- trainingData[apply(trainingDataWAPS, 1, var) == 0, ]
 ZeroVarCols <- trainingDataWAPS[,apply(trainingDataWAPS, 2, var) == 0 ]
 
 # Save the DF in order to explore these measurements further (see script 1.b)
-saveRDS(ZeroVarRows, file = "ZeroVarRows.rds")
+saveRDS(ZeroVarRows, file = "data/ZeroVarRows.rds")
 
 # Remove the rows and cols with zero variance from the trainingData to minimize computing
 trainingDataProc <- trainingData[,-which(apply(trainingDataWAPS, 2, var) == 0)]
@@ -152,8 +152,8 @@ validationDataProc <- validationData[,-which(apply(trainingDataWAPS, 2, var) == 
 # mW_WAPS2 <- 10^(WAPS2/10)
 
 # bind them back together
- trainingDataProc <- bind_cols(mW_WAPS, REST)
- validationDataProc <- bind_cols(mW_WAPS2, REST2)
+# trainingDataProc <- bind_cols(mW_WAPS, REST)
+# validationDataProc <- bind_cols(mW_WAPS2, REST2)
 
 
 # store the files in order to load them in another scirpt

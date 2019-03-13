@@ -8,7 +8,7 @@
 
 
 # Load the data
-ZeroVarRows <- readRDS(file = "ZeroVarRows.rds")
+ZeroVarRows <- readRDS(file = "data/ZeroVarRows.rds")
 
 # understand the characteristics of the zero variance rows
 summary(ZeroVarRows[,521:529])

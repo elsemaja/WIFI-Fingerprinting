@@ -87,7 +87,7 @@ sum(list30) / length(list30)
 Outliers30 <- trainingData[list30,]
 
 # store the outliers for further investifation (see script 1.c)
-saveRDS(Outliers30, file = "Outliers.rds")
+saveRDS(Outliers30, file = "data/Outliers.rds")
 
 
 # Remove the rows that have values between -30 and 0 from the dataset
@@ -106,7 +106,7 @@ sum(listZVRows) / length(listZVRows)
 ZeroVarRows <- trainingData[listZVRows,]
 
 # Save the DF in order to explore these measurements further (see script 1.b)
-saveRDS(ZeroVarRows, file = "ZeroVarRows.rds")
+saveRDS(ZeroVarRows, file = "data/ZeroVarRows.rds")
 
 # now remove them from the DF
 trainingData <- trainingData[!listZVRows,]
