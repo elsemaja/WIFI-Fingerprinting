@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-#   WIFI | TRAINING SVM FOR BUILDINGID | VERSION 5.0 | by ELSE                #
+#   WIFI | TRAINING SVM FOR BUILDINGID | VERSION 4.0 | by ELSE                #
 #                                                                             #
 #   Sample & subset data with only WAPS as predictors, train model & predict  #
 #                                                                             #
@@ -18,8 +18,8 @@ library("class")
 
 
 # load the preprocessed dataframes
-trainingData <- readRDS(file = "data/trainingDataProc(V5).rds")
-validationData <- readRDS(file = "data/validationDataProc(V5).rds")
+trainingData <- readRDS(file = "data/trainingDataProc(V4).rds")
+validationData <- readRDS(file = "data/validationDataProc(V4).rds")
 
 trainingData$BUILDINGID <- as.factor(trainingData$BUILDINGID)
 
@@ -40,7 +40,7 @@ trainingDataWAP <- select(trainingData, -FLOOR, -SPACEID, -RELATIVEPOSITION, -US
 set.seed(123)
 indexTrain <- createDataPartition(y = trainingDataWAP$BUILDINGID, p = .05, list = FALSE)
 setTraining <- trainingDataWAP[indexTrain,]
-setTest <- trainingDataWAP[-indexTrain,]
+
 
 
 
@@ -64,9 +64,6 @@ modelSVM
 varImp(modelSVM)
 
 
-
-
-
 # make predictions with the model and predict the BUILDING ID of from the validationData ----
 predBUILDING_SVM <- predict(modelSVM, validationData)
 
@@ -84,11 +81,6 @@ validationData$predBUILDING_SVM <- as.factor(validationData$predBUILDING_SVM)
 # check the metrics postResample() for regression and confusionMatrix() for classification ---
 confusionMatrix(validationData$predBUILDING_SVM, validationData$BUILDINGID)
 
-
-
-
-
-
 # visualize the errors ----
 # add column with errors to the dataframe
 validationData$predBUILDING_SVM <- as.integer(validationData$predBUILDING_SVM)
@@ -102,26 +94,6 @@ plot(validationData$errorsBUILDING,
      main = "BUILDING predictions",
      xlab = "correct = 0 | incorrect != 0",
      ylab = "count")
-
-# find out where the errors occur exactly
-plot_ly(validationData, 
-        x = ~LATITUDE, y = ~LONGITUDE, z = ~FLOOR, colors = c('#ff0000','#0800ff')) %>%
-  add_markers(color = ~errorsBUILDING == 0) %>%
-  # add_markers(color = ~errorsLATITUDE > 8 | ~errorsLATITUDE < -8) %>%
-  # add_markers(color = ~errorsLONGITUDE > 8 | ~errorsLONGITUDE < -8) %>%
-  layout(title = "Wrongly predicted BUILDINGID's",
-         scene = list(xaxis = list(title = 'LATITUDE'),
-                      yaxis = list(title = 'LONGITUDE'),
-                      zaxis = list(title = 'FLOOR'))) 
-
-# subset the errors  
-wrongBUILDING <-validationData %>%
-  filter(errorsBUILDING != 0)
-
-# what do the errors have in common?
-wrongBUILDING[,521:531]
-
-
 
 
 # store the predicted values, actual values and errors in a tibble ----
@@ -137,7 +109,5 @@ resultsBUILDING$BUILDINGID <- as.integer(resultsBUILDING$BUILDINGID)
 resultsBUILDING  <- mutate(resultsBUILDING, errorsBUILDING = predBUILDING_SVM - BUILDINGID) 
 resultsBUILDING$errorsBUILDING <- resultsBUILDING$predBUILDING_SVM - resultsBUILDING$BUILDINGID
 
-
-
 # store as RDS
-saveRDS(resultsBUILDING, file = "resultsBUILDING(V5).rds")
+saveRDS(resultsBUILDING, file = "resultsBUILDING(V4).rds")

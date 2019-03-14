@@ -20,8 +20,8 @@ library("corrplot")
 
 
 # load the preprocessed dataframes
-trainingData <- readRDS(file = "data/trainingDataProc(V5).rds")
-validationData <- readRDS(file = "data/validationDataProc(V5).rds")
+trainingData <- readRDS(file = "data/trainingDataProc.rds")
+validationData <- readRDS(file = "data/validationDataProc.rds")
 
 
 
@@ -106,4 +106,4 @@ resultsLONGITUDE$errorsLONGITUDE <- resultsLONGITUDE$predLONGITUDE_KNN - results
 
 
 # store as RDS
-saveRDS(resultsLONGITUDE, file = "resultsLONGITUDE(V5).rds")
+saveRDS(resultsLONGITUDE, file = "resultsLONGITUDE(V4).rds")

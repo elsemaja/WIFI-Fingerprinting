@@ -6,8 +6,19 @@
 #                                                                             #
 ###############################################################################
 
+library(ggplot)
+library(plotly)
+
 # Load the data
 Outliers30 <- readRDS(file = "data/Outliers.rds")
+
+
+Outliers30$SPACEID <- as.integer(Outliers30$SPACEID)
+USERID6 <- Outliers30 %>%
+  filter(USERID == 6)
+USERID6_2 <- trainingData %>%
+  filter(USERID == 6)
+
 
 # understand the characteristics of the zero variance rows
 summary(Outliers30[,521:529])
@@ -26,13 +37,20 @@ hist(Outliers30$USERID)
 hist(Outliers30$SPACEID)
 
 
+
 # Make plots to perform visual analysis
 Outliers30$USERID <- as.factor(Outliers30$USERID)
-ggplot(Outliers30, aes(x=LONGITUDE, y=LATITUDE, color = USERID))+
+Outliers30$SPACEID <- as.factor(Outliers30$SPACEID)
+
+USERID6 <- trainingData %>%
+  filter(USERID == 6)
+
+ggplot(USERID6, aes(x=LONGITUDE, y=LATITUDE, color = USERID))+
   geom_point() + 
+  facet_wrap(~BUILDINGID) +
   theme_light() +
-  labs(title="Measurements above -30 dBM",
-       subtitle = "Measured by Users")
+  labs(title="Measurements above between -30 an 0 dBM",
+       subtitle = "Registered by SPACEID and divided by USERID")
 
 Outliers30$RELATIVEPOSITION <- as.factor(Outliers30$RELATIVEPOSITION)
 ggplot(Outliers30, aes(x=LONGITUDE, y=LATITUDE, color = RELATIVEPOSITION))+
@@ -65,12 +83,65 @@ ggplot(Outliers30, aes(x=LONGITUDE, y=LATITUDE, color = SPACEID))+
 
 # 3D plot
 plot_ly(Outliers30, 
-                       x = ~LATITUDE, y = ~LONGITUDE, z = ~FLOOR, colors = c('#ffb600','#0800ff')) %>%
+                       x = ~LATITUDE, y = ~LONGITUDE, z = ~FLOOR, colors = c('#ffb600','#00ff5d','#0800ff')) %>%
   #add_markers(color = ~errorsBUILDING != 0) %>%
-  add_markers(color = ~USERID) %>%
+  add_markers(color = ~RELATIVEPOSITION) %>%
   # add_markers(color = ~errorsLATITUDE > 8 | ~errorsLATITUDE < -8) %>%
   # add_markers(color = ~errorsLONGITUDE > 8 | ~errorsLONGITUDE < -8) %>%
   layout(scene = list(xaxis = list(title = 'LATITUDE'),
                       yaxis = list(title = 'LONGITUDE'),
                       zaxis = list(title = 'FLOOR')))
 PlotError3D
+
+#create a subset with only floor4 building 2
+
+BUILDING2FLOOR4 <- Outliers30 %>%
+  filter(USERID == 6,
+         FLOOR == 4, 
+         BUILDINGID == 2)
+
+BUILDING2FLOOR4$SPACEID <- as.factor(BUILDING2FLOOR4$SPACEID)
+BUILDING2FLOOR4$USERID <- as.factor(BUILDING2FLOOR4$USERID)
+
+
+print(BUILDING2FLOOR4[,520:529])
+
+plot_ly(BUILDING2FLOOR4, 
+        x = ~LATITUDE, y = ~LONGITUDE, z = ~FLOOR, colors = c('#ffb600','#00ff5d','#0800ff')) %>%
+  #add_markers(color = ~errorsBUILDING != 0) %>%
+  add_markers(color = ~USERID) %>%
+  # add_markers(color = ~errorsLATITUDE > 8 | ~errorsLATITUDE < -8) %>%
+  # add_markers(color = ~errorsLONGITUDE > 8 | ~errorsLONGITUDE < -8) %>%
+  layout(scene = list(xaxis = list(title = 'LATITUDE'),
+                      yaxis = list(title = 'LONGITUDE'),
+                      zaxis = list(title = 'FLOOR'),
+                      titel = "test"))
+
+BUILDING2FLOOR4 <- trainingData %>%
+  filter(FLOOR == 4 & BUILDINGID == 2)
+BUILDING2FLOOR4$SPACEID <- as.factor(BUILDING2FLOOR4$SPACEID)
+BUILDING2FLOOR4$USERID <- as.factor(BUILDING2FLOOR4$USERID)
+
+plot_ly(BUILDING2FLOOR4, 
+        x = ~LATITUDE, y = ~LONGITUDE, z = ~FLOOR, colors = c('#ffb600','#00ff5d','#0800ff')) %>%
+  #add_markers(color = ~errorsBUILDING != 0) %>%
+  add_markers(color = ~USERID) %>%
+  # add_markers(color = ~errorsLATITUDE > 8 | ~errorsLATITUDE < -8) %>%
+  # add_markers(color = ~errorsLONGITUDE > 8 | ~errorsLONGITUDE < -8) %>%
+  layout(scene = list(xaxis = list(title = 'LATITUDE'),
+                      yaxis = list(title = 'LONGITUDE'),
+                      zaxis = list(title = 'FLOOR'),
+                      titel = "test"))
+
+trainingData2$SPACEID <- as.factor(trainingData2$SPACEID)
+trainingData2$USERID <- as.factor(trainingData2$USERID)
+plot_ly(trainingData2, 
+        x = ~LATITUDE, y = ~LONGITUDE, z = ~FLOOR, colors = c('#ffb600','#00ff5d','#0800ff')) %>%
+  #add_markers(color = ~errorsBUILDING != 0) %>%
+  add_markers(color = ~SPACEID) %>%
+  # add_markers(color = ~errorsLATITUDE > 8 | ~errorsLATITUDE < -8) %>%
+  # add_markers(color = ~errorsLONGITUDE > 8 | ~errorsLONGITUDE < -8) %>%
+  layout(scene = list(xaxis = list(title = 'LATITUDE'),
+                      yaxis = list(title = 'LONGITUDE'),
+                      zaxis = list(title = 'FLOOR'),
+                      titel = "test"))

@@ -1,16 +1,16 @@
 ###############################################################################
 #                                                                             #
-#   WIFI | VISUALIZING TRAININGDATA | VERSION 5.0 | by ELSE                   #
+#   WIFI | VISUALIZING TRAININGDATA | VERSION 4.0 | by ELSE                   #
 #                                                                             #
 #                                                                             #
 #                                                                             #
 ###############################################################################
 
 # visualizing the data in general
-trainingData$PHONEID <- as.factor(trainingData$PHONEID)
-ggplot(trainingData, aes(x=LONGITUDE, y = LATITUDE, color = PHONEID)) +
+trainingDataProc$USERID <- as.factor(trainingDataProc$USERID)
+ggplot(trainingDataProc, aes(x=LONGITUDE, y = LATITUDE, color = USERID)) +
   geom_jitter() + 
-  facet_wrap(~FLOOR) +
+  facet_wrap(~USERID) +
   theme_light() +
   labs(title="Measurements made",
        subtitle = "seperated by people")
@@ -24,6 +24,3 @@ ggplot(trainingDataProc, aes(x=LONGITUDE, y = LATITUDE, color = USERID)) +
   theme_light() +
   labs(title="Measurements made",
        subtitle = "seperated by people")
-
-
-

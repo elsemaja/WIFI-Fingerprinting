@@ -19,8 +19,8 @@ library("corrplot")
 
 
 # load the preprocessed dataframes
-trainingData <- readRDS(file = "data/trainingDataProc(V5).rds")
-validationData <- readRDS(file = "data/validationDataProc(V5).rds")
+trainingData <- readRDS(file = "data/trainingDataProc.rds")
+validationData <- readRDS(file = "data/validationDataProc.rds")
 
 
 
@@ -29,8 +29,6 @@ validationData <- readRDS(file = "data/validationDataProc(V5).rds")
 # remove other columns in order to predict LATITUDE by the values of WAPs
 trainingDataWAP <- select(trainingData, -FLOOR, -BUILDINGID, -SPACEID, -RELATIVEPOSITION, -USERID, 
                           -PHONEID, -TIMESTAMP, -LONGITUDE)
-trainingDataINFO <- select(trainingData, FLOOR, BUILDINGID, SPACEID, RELATIVEPOSITION, USERID, 
-                           PHONEID, TIMESTAMP, LONGITUDE, LATITUDE)
 
 
 
@@ -38,7 +36,7 @@ trainingDataINFO <- select(trainingData, FLOOR, BUILDINGID, SPACEID, RELATIVEPOS
 set.seed(123)
 indexTrain <- createDataPartition(y = trainingDataWAP$LATITUDE, p = .05, list = FALSE)
 setTraining <- trainingDataWAP[indexTrain,]
-setTest <- trainingDataWAP[-indexTrain,]
+
 
 
 
@@ -60,35 +58,6 @@ modelKNN
 
 #see variable importance
 varImp(modelKNN)
-
-
-# make predictions with the model and predict the BuildingID of from the TRAININGDATA ----
-predLATITUDE_KNN <- predict(modelKNN, setTest)
-
-
-# add the info to the setTest
-setTest <- cbind(setTest, trainingDataWAP)
-
-#create a new column with predicted data
-setTest$predLATITUDE_KNN <- predLATITUDE_KNN
-
-
-plot_ly(setTest, 
-        x = ~LATITUDE, y = ~LONGITUDE, z = ~FLOOR, colors = c('#ffb600','#00ff5d','#0800ff')) %>%
-  #add_markers(color = ~errorsBUILDING != 0) %>%
-  add_markers(color = ~SPACEID) %>%
-  # add_markers(color = ~errorsLATITUDE > 8 | ~errorsLATITUDE < -8) %>%
-  # add_markers(color = ~errorsLONGITUDE > 8 | ~errorsLONGITUDE < -8) %>%
-  layout(scene = list(xaxis = list(title = 'LATITUDE'),
-                      yaxis = list(title = 'LONGITUDE'),
-                      zaxis = list(title = 'FLOOR'),
-                      titel = "test"))
-
-
-
-
-
-
 
 
 # make predictions with the model and predict the BuildingID of from the validationData ----
@@ -136,4 +105,4 @@ resultsLATITUDE$errorsLATITUDE <- resultsLATITUDE$predLATITUDE_KNN - resultsLATI
 
 
 # store as RDS
-saveRDS(resultsLATITUDE, file = "resultsLATITUDE(V5).rds")
+saveRDS(resultsLATITUDE, file = "resultsLATITUDE(V4).rds")

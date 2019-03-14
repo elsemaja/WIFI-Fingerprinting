@@ -1,8 +1,8 @@
 ###############################################################################
 #                                                                             #
-#   WIFI | PACKAGES & LOADING DATA | VERSION 5.0 | by ELSE                    #
+#   WIFI | PACKAGES & LOADING DATA | VERSION 4.0 | by ELSE                    #
 #                                                                             #
-#   connected to results V5, preprocessed: values between -30-0, +100         #
+#   connected to results V4, preprocessed: values between -30-0, +100         #
 #                                                                             #
 ###############################################################################
 
@@ -49,7 +49,6 @@ trainingData$SPACEID <- as.integer(trainingData$SPACEID)
 trainingData$RELATIVEPOSITION <- as.integer(trainingData$RELATIVEPOSITION)
 trainingData$USERID <- as.integer(trainingData$USERID)
 trainingData$PHONEID <- as.integer(trainingData$PHONEID)
-trainingData$TIMESTAMP <- as.POSIXct(trainingData$TIMESTAMP, origin = '1970-01-01', tz = 'GMT')
 
 
 
@@ -63,8 +62,11 @@ validationData$SPACEID <- as.integer(validationData$SPACEID)
 validationData$RELATIVEPOSITION <- as.integer(validationData$RELATIVEPOSITION)
 validationData$USERID <- as.integer(validationData$USERID)
 validationData$PHONEID <- as.integer(validationData$PHONEID)
-validationData$TIMESTAMP <- as.POSIXct(validationData$TIMESTAMP, origin = '1970-01-01', tz = 'GMT')
 
+
+# preprocessing part 1: turn +100 values into -106 ----
+trainingData[trainingData == 100] <- -106
+validationData[validationData == 100] <- -106
 
 
 # preprocessing part 2: remove outliers and zero variance columns and rows ----
@@ -73,14 +75,6 @@ validationData$TIMESTAMP <- as.POSIXct(validationData$TIMESTAMP, origin = '1970-
 #trainingDataINFO <- trainingData[,521:529]
 #validationDataWAPS <- validationData[,1:520]
 #validationDataINFO <- validationData[,521:529]
-
-
-
-# preprocessing part 1: turn +100 values into -106 ----
-trainingData[trainingData == 100] <- -106
-validationData[validationData == 100] <- -106
-
-
 
 
 # dBm values above -30 ----
@@ -96,62 +90,13 @@ Outliers30 <- trainingData[list30,]
 saveRDS(Outliers30, file = "data/Outliers.rds")
 
 
+# Remove the rows that have values between -30 and 0 from the dataset
+trainingData <- trainingData[!list30,]
 
 
 
-#trainingDataWAPS <- trainingData[,1:520]
-#trainingDataINFO <- trainingData[,521:529]
-#validationDataWAPS <- validationData[,1:520]
-#validationDataINFO <- validationData[,521:529]
-
-#trainingData <- cbind(trainingDataWAPS,trainingDataINFO)
-#validationData <- cbind(validationDataWAPS,validationDataINFO)
-
-
-
-
-
-# the outliers were mainly produced by USERID 6 in BUILDINGID 2 on FLOOR 6
-# the measurements made were connected to multiple SPACEID's.
-#USERID6 <- trainingData %>% 
-#  filter(USERID == 6 & FLOOR ==4)
-#USERID5BUILDING2FLOOR3 <- trainingData %>%
-#  filter(USERID == 5 & BUILDINGID == 2 & FLOOR == 3)
-#USERID1BUILDING0FLOOR2 <- trainingData %>%
-#  filter(USERID == 1 & BUILDINGID == 0 & FLOOR == 2)
-#USERID11BUILDING0FLOOR2 <- trainingData %>%
-#  filter(USERID == 11 & BUILDINGID == 0 & FLOOR == 2)
-#PHONEID13 <- trainingData %>%
-#  filter(PHONEID == 13)
-#PHONEID14 <- trainingData %>%
-#  filter(PHONEID == 14)
-PHONEID17 <- trainingData %>%
-  filter(PHONEID == 17, BUILDINGID == 1 & FLOOR == 1)
-
-PHONEID17[520:529]
-
-PHONEID17INFO <- PHONEID17[,FLOOR:]
-
-
-trainingData <- trainingData %>% 
-  filter(!(USERID == 6 & FLOOR ==4))
-
-trainingData <- trainingData %>%
-  filter((!(USERID == 5 & BUILDINGID == 2 & FLOOR == 3)))
-
-
-list30 <- apply(trainingData %>% select(starts_with("WAP")),1, max ) > -30
-sum(list30) / length(list30)
-
-
-
-# Transform the rows that have measurements between -29 and 99 to -30
+# Transform the rows that have measurements between -29 and 99 to -106
 # trainingDataWAPS[trainingDataWAPS > -30]  <- -30
-# trainingDataWAPS <- select(trainingData, starts_with("WAP"))
-# trainingDataWAPS[trainingDataWAPS >= -30] <- trainingDataWAPS[trainingDataWAPS[1:520] >= -30] -30
-# for(i in junk$nm) if(i %in% "B") junk$nm <- "b"
-
-
 
 # identify rows with zero variance in the trainingdata (V2) ----
 listZVRows <- apply(trainingData %>% select(starts_with("WAP")),1, var ) == 0
@@ -168,31 +113,50 @@ trainingData <- trainingData[!listZVRows,]
 
 
 # identify cols with zero variance in the trainingdata (V2) ----
-trainingDataWAPS <- trainingData[,1:520]
-trainingDataINFO <- trainingData[,521:529]
-
-listVcols <- apply(trainingDataWAPS %>% select(starts_with("WAP")),2, var ) == 0
+listVcols <- apply(trainingData %>% select(-TIMESTAMP),2, var ) == 0
 sum(listVcols) / length(listVcols)
 
 
 
 # now remove them from the DF
-trainingDataWAPS <- trainingDataWAPS[,!listVcols] 
-
-trainingData <- cbind(trainingDataWAPS,trainingDataINFO)
-
-
+trainingData <- trainingData[,!listVcols] 
 names(trainingData)
 
 
 
 
+# remove the same columns from the validationData otherwise the model will make
+# guesses on the WAPs that are excluded, because they have variance in the validationData??
+# validationDataProc <- validationData[,-which(apply(trainingDataWAPS, 2, var) == 0)]
+
+
+
+
+ # preprocess part 4: turn values into mW ----
+ #split WAPS from other columns
+# WAPS <- select(trainingDataProc, starts_with("WAP"))
+# REST <- select(trainingDataProc, LONGITUDE:TIMESTAMP)
+
+# WAPS2 <- select(validationDataProc, starts_with("WAP"))
+# REST2 <- select(validationDataProc, LONGITUDE:TIMESTAMP)
+
+
+
+# turn dBm values into mW
+# mW_WAPS <- 10^(WAPS/10)
+# mW_WAPS2 <- 10^(WAPS2/10)
+
+# bind them back together
+# trainingDataProc <- bind_cols(mW_WAPS, REST)
+# validationDataProc <- bind_cols(mW_WAPS2, REST2)
+
 
 
 # store the files in order to load them in another scirpt
-saveRDS(trainingData, file = "data/trainingDataProc(V5).rds")
-saveRDS(validationData, file = "data/validationDataProc(V5).rds")
+saveRDS(trainingData, file = "data/trainingDataProc(V4).rds")
+saveRDS(validationData, file = "data/validationDataProc(V4).rds")
 
 
 # clean your global environment
-#rm(list = ls())
+rm(Outliers30)
+rm(ZeroVarRows)

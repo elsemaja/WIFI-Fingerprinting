@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-#   WIFI | VISUALISING THE RESULTS WITH PLOTS | VERSION 5.0 | by ELSE         #
+#   WIFI | VISUALISING THE RESULTS WITH PLOTS | VERSION 4.0 | by ELSE         #
 #                                                                             #
 #   combine all the predicted values in one table or dataframe for comparison #
 #                                                                             #
@@ -18,7 +18,7 @@ pacman::p_load('dplyr', 'tidyr', 'gapminder',
 
 
 # load the predictions, actuals and error file
-resultsVSactual <- readRDS(file = "resultsALL(5).rds")
+resultsVSactual <- readRDS(file = "resultsALL(4).rds")
 
 
 
